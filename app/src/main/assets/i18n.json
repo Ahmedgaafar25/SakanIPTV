@@ -207,5 +207,6 @@
   "متوازن · موصى به": "Balanced · recommended",
   "ثبات · تخزين وانتظار أطول": "Stable · longer buffer and wait",
   "يُطبق على البث التالي. التخزين الأكبر قد يزيد تأخير البث ولا يعالج نقص سرعة الإنترنت.": "Applies to the next stream. A larger buffer may increase live delay and cannot fix insufficient bandwidth.",
-  "ترتيب القنوات والباقات": "Organize channels and categories"
+  "ترتيب القنوات والباقات": "Organize channels and categories",
+  "يتم فحص التحديثات تلقائيًا في الخلفية كل مرة تفتح فيها التطبيق، ويظهر تنبيه عند توفر إصدار أحدث.": "Updates are checked in the background every time you open the app. A prompt appears when a newer version is available."
 }

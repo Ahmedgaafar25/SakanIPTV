@@ -1,6 +1,7 @@
 'use strict';
 (function(){
 const dictionary={
+"يتم فحص التحديثات تلقائيًا في الخلفية كل مرة تفتح فيها التطبيق، ويظهر تنبيه عند توفر إصدار أحدث.":"Updates are checked in the background every time you open the app. A prompt appears when a newer version is available.",
 "التخزين المؤقت":"Buffering","سريع · انتظار أقل":"Fast \u00b7 shorter wait","متوازن · موصى به":"Balanced \u00b7 recommended","ثبات · تخزين وانتظار أطول":"Stable \u00b7 longer buffer and wait","يُطبق على البث التالي. التخزين الأكبر قد يزيد تأخير البث ولا يعالج نقص سرعة الإنترنت.":"Applies to the next stream. A larger buffer may increase live delay and cannot fix insufficient bandwidth.","ترتيب القنوات والباقات":"Organize channels and categories",
   "الرئيسية": "Home",
   "البث المباشر": "Live TV",
