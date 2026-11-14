@@ -230,7 +230,13 @@ const dictionary={
   "جارٍ تشغيل المعاينة…": "Starting preview…",
   "اضغط القناة مرة أخرى أو اضغط المعاينة لملء الشاشة.": "Select the channel again or press the preview to open full screen.",
   "ابحث في الباقات": "Search categories",
-  "لم تبدأ المشاهدة": "Not watched yet"
+  "لم تبدأ المشاهدة": "Not watched yet",
+  "الكل": "All",
+  "أضف عناصر من هذا القسم إلى المفضلة.": "Add items from this section to favorites.",
+  "لا توجد مشاهدات بعد": "Nothing watched yet",
+  "ستظهر مشاهدات هذا القسم هنا.": "Recently watched items from this section appear here.",
+  "سيتم مسح السجل ونقاط الاستكمال لهذا القسم فقط.": "Only this section’s watch history and resume positions will be cleared.",
+  "إضافة السيرفر": "Add server"
 };
 const entries=Object.entries(dictionary).sort((a,b)=>b[0].length-a[0].length);
 const reverse=Object.entries(dictionary).sort((a,b)=>b[1].length-a[1].length);

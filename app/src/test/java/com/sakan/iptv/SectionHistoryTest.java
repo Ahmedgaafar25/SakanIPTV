@@ -1,0 +1,7 @@
+package com.sakan.iptv;
+import org.json.*;import org.junit.Test;import static org.junit.Assert.*;
+public class SectionHistoryTest {
+ @Test public void clearingOneSectionRetainsOtherPositionsWithSameId()throws Exception{JSONArray all=new JSONArray();for(String kind:new String[]{"live","vod","series"})all.put(new JSONObject().put("kind",kind).put("uid","item:1").put("positionMs",12345));JSONArray kept=WatchHistory.withoutKind(all,"vod");assertEquals(2,kept.length());assertNull(WatchHistory.find(kept,"vod","item:1"));assertEquals(12345,WatchHistory.find(kept,"series","item:1").getLong("positionMs"));assertNotNull(WatchHistory.find(kept,"live","item:1"));assertEquals(3,all.length());}
+ @Test public void savedSeriesFolderKeepsIdentityAndArtwork()throws Exception{Provider.Item folder=new Provider.Item("1","Series","7","","mp4",true);folder.cover="https://example.test/poster.jpg";folder.plot="Series plot";JSONObject saved=folder.json("series",true);Provider.Item restored=Provider.restored(saved);assertTrue(restored.folder);assertEquals("folder:1",restored.json("series",true).getString("uid"));assertEquals(folder.cover,restored.cover);assertEquals(folder.plot,restored.plot);}
+ @Test public void clearingEmptySectionLeavesExistingHistory()throws Exception{JSONArray old=new JSONArray().put(new JSONObject().put("kind","vod").put("uid","item:1"));assertEquals(1,WatchHistory.withoutKind(old,"series").length());assertEquals(0,WatchHistory.withoutKind(new JSONArray(),"live").length());}
+}
