@@ -224,7 +224,8 @@ const dictionary={
   "تحديث المحتوى": "Refresh content",
   "تم تحديث المحتوى": "Content refreshed",
   "كل القنوات": "All channels",
-  "الباقات والتصنيفات": "Channel groups and categories"
+  "الباقات والتصنيفات": "Channel groups and categories",
+  "خيارات القناة": "Channel options"
 };
 const entries=Object.entries(dictionary).sort((a,b)=>b[0].length-a[0].length);
 const reverse=Object.entries(dictionary).sort((a,b)=>b[1].length-a[1].length);
