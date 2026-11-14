@@ -234,5 +234,9 @@
   "لا توجد مشاهدات بعد": "Nothing watched yet",
   "ستظهر مشاهدات هذا القسم هنا.": "Recently watched items from this section appear here.",
   "سيتم مسح السجل ونقاط الاستكمال لهذا القسم فقط.": "Only this section’s watch history and resume positions will be cleared.",
-  "إضافة السيرفر": "Add server"
+  "إضافة السيرفر": "Add server",
+  "ابحث في جميع القنوات...": "Search all channels...",
+  "ابحث في الأفلام...": "Search movies...",
+  "ابحث في المسلسلات...": "Search series...",
+  "ابحث في الحلقات...": "Search episodes..."
 }
