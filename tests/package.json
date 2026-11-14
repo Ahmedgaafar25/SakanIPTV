@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "test": "cd .. && node tests/ui-dom-check.cjs && node tests/player-features.cjs && node tests/minimal-home.cjs && node tests/channel-options.cjs"
+    "test": "cd .. && node tests/ui-dom-check.cjs && node tests/player-features.cjs && node tests/minimal-home.cjs && node tests/channel-options.cjs && node tests/preview-progress.cjs"
   },
   "devDependencies": {
     "jsdom": "26.0.0"

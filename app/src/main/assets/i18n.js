@@ -144,7 +144,7 @@ const dictionary={
   "لم نتمكن من تشغيل الصيغ المتاحة. جرّب قناة أخرى؛ لو تكرر نفس الكود ابعت صورة الرسالة.": "None of the available formats could be played. Try another channel. If the same code appears, send a screenshot of this message.",
   "محاولة ": "Attempt ",
   "مكتبة غير صحيحة": "Invalid library",
-  "ملء الشاشة": "Fill screen",
+  "ملء الشاشة": "Full screen",
   "مهلة الاتصال انتهت": "Connection timed out",
   "نوع حساب غير صحيح": "Invalid account type",
   "تدوير الشاشة": "Rotate screen",
@@ -225,7 +225,12 @@ const dictionary={
   "تم تحديث المحتوى": "Content refreshed",
   "كل القنوات": "All channels",
   "الباقات والتصنيفات": "Channel groups and categories",
-  "خيارات القناة": "Channel options"
+  "خيارات القناة": "Channel options",
+  "اختر قناة للمعاينة": "Select a channel to preview",
+  "جارٍ تشغيل المعاينة…": "Starting preview…",
+  "اضغط القناة مرة أخرى أو اضغط المعاينة لملء الشاشة.": "Select the channel again or press the preview to open full screen.",
+  "ابحث في الباقات": "Search categories",
+  "لم تبدأ المشاهدة": "Not watched yet"
 };
 const entries=Object.entries(dictionary).sort((a,b)=>b[0].length-a[0].length);
 const reverse=Object.entries(dictionary).sort((a,b)=>b[1].length-a[1].length);
