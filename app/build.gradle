@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
  namespace 'com.sakan.iptv'
  compileSdk 35
- defaultConfig { applicationId 'com.sakan.iptv'; minSdk 23; targetSdk 34; versionCode 10; versionName '1.9' }
+ defaultConfig { applicationId 'com.sakan.iptv'; minSdk 23; targetSdk 34; versionCode 11; versionName '1.9.1' }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
  buildTypes { release { minifyEnabled false } }
 }
