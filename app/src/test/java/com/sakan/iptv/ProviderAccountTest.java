@@ -1,0 +1,10 @@
+package com.sakan.iptv;
+import org.junit.*;import static org.junit.Assert.*;import org.json.*;import java.nio.charset.StandardCharsets;
+
+public class ProviderAccountTest {
+ private ProviderTest fixture;private int requests=0;
+ @Before public void start()throws Exception{fixture=new ProviderTest();fixture.setup();fixture.server.createContext("/",e->{String q=e.getRequestURI().getRawQuery();requests++;String result=q!=null&&q.contains("handshake")?"{\"js\":{\"token\":\"mock\"}}":q!=null&&q.contains("get_profile")?"{\"js\":{\"blocked\":0}}":q!=null&&q.contains("type=account_info")?"{\"js\":{\"account_info\":{\"expire_billing_date\":\"2030-01-01\",\"phone\":\"private\"}}}":"{\"user_info\":{\"auth\":1,\"status\":\"Active\",\"exp_date\":\"1893456000\",\"password\":\"private\"}}";byte[] b=result.getBytes(StandardCharsets.UTF_8);e.sendResponseHeaders(200,b.length);e.getResponseBody().write(b);e.close();});}
+ @After public void stop(){fixture.stop();}
+ @Test public void xtreamLoginAndRefreshUseRealAccountExpiry()throws Exception{Provider p=new Provider(new JSONObject().put("mode","XTREAM").put("url",fixture.url).put("user","u").put("pass","p"));p.login();assertEquals("dated",p.expiry.status);assertEquals(1893456000000L,p.expiry.at);int before=requests;p.refreshSubscription();assertTrue(requests>before);assertFalse(p.expiry.json().toString().contains("private"));}
+ @Test public void macOptionalAccountResponseAndSafeRelativeArtwork()throws Exception{Provider p=new Provider(new JSONObject().put("mode","MAC").put("url",fixture.url+"/c/").put("mac","00:1A:79:11:22:33"));p.login();assertEquals("unknown",p.expiry.status);p.refreshSubscription();assertEquals("dated",p.expiry.status);assertTrue(p.artworkUrl("../misc/logo.png").endsWith("/misc/logo.png"));assertEquals("",p.artworkUrl("javascript:bad()"));assertEquals("",p.artworkUrl("https://user:secret@example.com/logo.png"));assertEquals("",p.artworkUrl(""));assertEquals("http://example.com/logo%20one.png",p.artworkUrl("HTTP://EXAMPLE.COM:80/logo one.png#old"));assertEquals("https://example.com/a.png?x=1&y=2",p.artworkUrl("https://example.com:443/a.png?x=1&amp;y=2"));}
+}

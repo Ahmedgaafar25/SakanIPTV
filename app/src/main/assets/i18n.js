@@ -212,7 +212,19 @@ const dictionary={
   "ترتيب القنوات والباقات": "Organize channels and categories",
   "يتم فحص التحديثات تلقائيًا في الخلفية كل مرة تفتح فيها التطبيق، ويظهر تنبيه عند توفر إصدار أحدث.": "Updates are checked in the background every time you open the app. A prompt appears when a newer version is available.",
   "مسلسلات": "Series",
-  "أفلام": "Movies"
+  "أفلام": "Movies",
+  "انتهاء الاشتراك": "Subscription expires",
+  "غير متاح من المزوّد": "Not supplied by provider",
+  "أضف حسابك أولًا": "Add an account first",
+  "غير محدد المدة": "No expiry date",
+  "آخر القنوات المشغّلة": "Recent channels",
+  "ستظهر القنوات التي تشغّلها هنا.": "Channels you play will appear here.",
+  "اضغط النجمة بجوار قناة لإضافتها إلى المفضلة.": "Tap the star on a channel to save it here.",
+  "جارٍ التحديث…": "Refreshing…",
+  "تحديث المحتوى": "Refresh content",
+  "تم تحديث المحتوى": "Content refreshed",
+  "كل القنوات": "All channels",
+  "الباقات والتصنيفات": "Channel groups and categories"
 };
 const entries=Object.entries(dictionary).sort((a,b)=>b[0].length-a[0].length);
 const reverse=Object.entries(dictionary).sort((a,b)=>b[1].length-a[1].length);

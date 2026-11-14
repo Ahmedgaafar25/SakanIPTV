@@ -13,6 +13,7 @@ public final class Provider {
   Item(String i,String n,String c,String u,String e,boolean f){id=i;name=n;category=c;cmd=u;ext=e;folder=f;}
  }
  public final JSONObject profile; public final boolean macMode; public final String base;
+ volatile SubscriptionExpiry expiry=SubscriptionExpiry.unknown();
  private String endpoint="",token="",stage=""; private java.util.TimeZone serverZone=java.util.TimeZone.getDefault();private final Set<String> allowedFormats=new HashSet<>();
  public static final String UA="Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG250 stbapp ver: 4 rev: 2721 Safari/533.3";
  public Provider(JSONObject p) throws Exception {profile=p; macMode=p.optString("mode").equals("MAC"); base=normalize(p.getString("url"));}
@@ -46,7 +47,7 @@ public final class Provider {
  Object request(String url) throws Exception {
   URL current=new URL(url); Map<String,String> h=headers();
   for(int redirects=0;redirects<6;redirects++) {
-   HttpURLConnection c=(HttpURLConnection)current.openConnection();c.setConnectTimeout(12000);c.setReadTimeout(20000);c.setInstanceFollowRedirects(false);c.setRequestProperty("Accept","application/json");
+   HttpURLConnection c=(HttpURLConnection)current.openConnection();c.setUseCaches(false);c.setRequestProperty("Cache-Control","no-cache");c.setConnectTimeout(12000);c.setReadTimeout(20000);c.setInstanceFollowRedirects(false);c.setRequestProperty("Accept","application/json");
    for(Map.Entry<String,String> e:h.entrySet())c.setRequestProperty(e.getKey(),e.getValue());
    try {
     int status=c.getResponseCode();
@@ -58,15 +59,19 @@ public final class Provider {
  }
  Object portal(String type,String action,String extra) throws Exception {stage=action;Object o=request(endpoint+"?type="+type+"&action="+action+"&JsHttpRequest=1-xml"+extra);if(!(o instanceof JSONObject))throw new Exception("رد البوابة غير صالح");return ((JSONObject)o).opt("js");}
  public void login() throws Exception {
-  if(!macMode){Object o=request(xc("",""));if(!(o instanceof JSONObject))throw new Exception("السيرفر لم يرجع بيانات Xtream صالحة. راجع رابط السيرفر والمنفذ.");JSONObject user=((JSONObject)o).optJSONObject("user_info");if(user==null||user.optInt("auth",0)!=1)throw new Exception("اسم المستخدم أو كلمة المرور غير صحيحة");JSONObject server=((JSONObject)o).optJSONObject("server_info");if(server!=null&&!server.optString("timezone").isEmpty())serverZone=java.util.TimeZone.getTimeZone(server.optString("timezone"));JSONArray formats=user.optJSONArray("allowed_output_formats");if(formats!=null)for(int i=0;i<formats.length();i++)allowedFormats.add(formats.optString(i));String status=user.optString("status","Active");if(!status.equalsIgnoreCase("Active"))throw new Exception("حالة الاشتراك: "+status);return;}
+  if(!macMode){Object o=request(xc("",""));if(!(o instanceof JSONObject))throw new Exception("السيرفر لم يرجع بيانات Xtream صالحة. راجع رابط السيرفر والمنفذ.");JSONObject user=((JSONObject)o).optJSONObject("user_info");if(user==null||user.optInt("auth",0)!=1)throw new Exception("اسم المستخدم أو كلمة المرور غير صحيحة");JSONObject server=((JSONObject)o).optJSONObject("server_info");if(server!=null&&!server.optString("timezone").isEmpty())serverZone=java.util.TimeZone.getTimeZone(server.optString("timezone"));JSONArray formats=user.optJSONArray("allowed_output_formats");if(formats!=null)for(int i=0;i<formats.length();i++)allowedFormats.add(formats.optString(i));expiry=SubscriptionExpiry.parse(user,true,serverZone);String status=user.optString("status","Active");if(!status.equalsIgnoreCase("Active"))throw new Exception("حالة الاشتراك: "+status);return;}
   if(!profile.optString("mac").matches("(?i)[0-9a-f]{2}(:[0-9a-f]{2}){5}"))throw new Exception("عنوان MAC غير صحيح");
   List<String> paths=portalEndpoints(base);
   Exception last=null;
   for(String p:paths){endpoint=p;token="";try{Object o=portal("stb","handshake","&token=");token=o instanceof JSONObject?((JSONObject)o).optString("token"):"";if(token.isEmpty())throw new Exception("البوابة لم ترجع رمز دخول");break;}catch(Exception e){last=e;}}
   if(token.isEmpty())throw new Exception("تعذر تسجيل MAC. راجع رابط البوابة وتفعيل اشتراكك. "+(last==null?"":last.getMessage()));
   Object info=portal("stb","get_profile","&hd=1&stb_type=MAG250&client_type=STB&image_version=218&video_out=hdmi&auth_second_step=1&sn="+enc(profile.optString("serial"))+"&device_id="+enc(profile.optString("device"))+"&device_id2="+enc(profile.optString("device")));
+  if(info instanceof JSONObject)expiry=SubscriptionExpiry.parse((JSONObject)info,false,serverZone);
   if(info instanceof JSONObject && ((JSONObject)info).optInt("blocked",0)==1)throw new Exception("هذا الاشتراك موقوف لدى المزود");
  }
+ public void refreshSubscription()throws Exception{Object response=macMode?portal("account_info","get_main_info",""):request(xc("",""));if(!(response instanceof JSONObject))return;JSONObject data=(JSONObject)response;if(macMode){JSONObject nested=data.optJSONObject("account_info");if(nested!=null)data=nested;}else{data=data.optJSONObject("user_info");if(data==null||data.optInt("auth",0)!=1)return;}SubscriptionExpiry value=SubscriptionExpiry.parse(data,!macMode,serverZone);if(!value.status.equals("unknown"))expiry=value;}
+ String artworkUrl(String raw){try{String value=raw==null?"":raw.trim();if(value.isEmpty()||value.equals("0")||value.equalsIgnoreCase("null")||value.length()>4096)return "";URL url=new URL(new URL(base.endsWith(".php")?base:base+"/"),value.replace("&amp;","&").replace(" ","%20"));URI uri=url.toURI().normalize();String scheme=url.getProtocol().toLowerCase(Locale.ROOT);if(!Arrays.asList("http","https").contains(scheme)||uri.getUserInfo()!=null)return "";String host=url.getHost().toLowerCase(Locale.ROOT);if(!host.contains(":"))host=IDN.toASCII(host);if(host.isEmpty())return "";int port=url.getPort();if(scheme.equals("http")&&port==80||scheme.equals("https")&&port==443)port=-1;String path=uri.getRawPath();if(path==null||path.isEmpty())path="/";return new URI(scheme+"://"+host+(port<0?"":":"+port)+path+(uri.getRawQuery()==null?"":"?"+uri.getRawQuery())).toASCIIString();}catch(Exception e){return "";}}
+
  public LinkedHashMap<String,String> categories(String kind) throws Exception {
   LinkedHashMap<String,String> result=new LinkedHashMap<>();result.put("*","كل التصنيفات");
   Object o=macMode?portal(kind.equals("live")?"itv":"vod",kind.equals("live")?"get_genres":"get_categories",""):request(xc("get_"+kind+"_categories",""));
