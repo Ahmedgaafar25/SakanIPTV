@@ -25,3 +25,17 @@ The script uses your existing `gh` login and creates the checksum manifest. Add 
 Java protocol, language and update-metadata tests and DOM behavior checks are included. Real provider subscriptions, physical Android/TV installation, download/installer permissions and full OTA operation require device testing. The player has no bundled subscription or channels.
 
 Cairo font uses SIL OFL; AndroidX/Media3 use Apache 2.0. Notices and generated hero provenance are included in the project.
+
+## Version 1.5 — viewing features
+- Provider EPG with current/next programme, date browsing and archive availability. Xtream uses `get_short_epg`/`get_simple_data_table`; Stalker uses `itv/get_short_epg` and `epg/get_simple_data_table`.
+- Catch-up for past programmes that the provider reports as recorded: Xtream timeshift URLs using server timezone and Stalker `tv_archive/create_link` with the provider programme ID. A missing guide, archive flag or archive entitlement cannot be created by the player. Only dates returned by the provider are available.
+- Account-scoped recently watched history and movie/episode resume positions; completed entries leave Continue watching. History is kept in private app storage, cleared through the UI, and never committed or uploaded.
+- In-player channel drawer, search and channel switching without returning to the dashboard.
+- Smart reconnect with 2/4/8-second delays and a three-attempt limit per unstable period. Auth/permission errors and nonstandard 488/511 refusals are not blindly retried. Stable playback resets the counter. User pause is respected. Archive playback may restart from its provider URL where seeking is unsupported.
+- Optional last-channel startup; provider metadata for plot, cast, genre, year, director and duration when supplied.
+- Local parental PIN with salted PBKDF2, attempt cooldown, five-minute unlock session, section/category locks and protected account/settings changes. This is a local viewing control, not DRM or protection against clearing app data/root access. Keep your PIN; no cloud recovery service is used.
+- Connection testing checks account API access and sample transport responses while idle; during playback it inspects the active stream/buffer/codecs without opening a second concurrent stream. Transport success does not prove codec playback. Diagnostics redact URLs and credential fields.
+- Floating playback on supported Android 8+ phones/tablets, including media-session play/pause. TV PiP is intentionally not used for video playback. Rotation, language, existing accounts/favorites and verified app updates are preserved.
+
+### Validation limits
+Mock-provider tests cover guide parsing, base64/timezones, archive eligibility, Xtream and MAC archive requests, metadata, watch-history rules, PIN hashing, retry bounds and diagnostic redaction. DOM tests cover history/resume, guide access, metadata escaping, protected-section routing and settings. Compilation and these tests do not establish physical-device PiP, playback, native dialogs, seeking or remote behavior. Those still require device and subscription testing. No real provider credentials were available or used during development.

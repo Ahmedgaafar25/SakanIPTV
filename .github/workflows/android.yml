@@ -21,6 +21,10 @@ jobs:
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease testDebugUnitTest --no-daemon
+      - name: Test bilingual interface and player features
+        run: |
+          npm ci --prefix tests --no-audit --no-fund
+          npm --prefix tests test
       - uses: actions/upload-artifact@v7.0.2
         with:
           name: unsigned-apk-do-not-install-as-update

@@ -12,3 +12,5 @@ signing/
 *.apk.idsig
 VALIDATION.json
 node_modules/
+
+tests/results/
