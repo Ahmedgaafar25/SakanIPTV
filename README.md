@@ -24,7 +24,7 @@ The script uses your existing `gh` login and creates the checksum manifest. Add 
 ## Validation and scope
 Java protocol, language and update-metadata tests and DOM behavior checks are included. Real provider subscriptions, physical Android/TV installation, download/installer permissions and full OTA operation require device testing. The player has no bundled subscription or channels.
 
-Cairo font uses SIL OFL; AndroidX/Media3 use Apache 2.0. Notices and generated hero provenance are included in the project.
+Cairo font uses SIL OFL; AndroidX/Media3 use Apache 2.0. License notices are included in the project.
 
 ## Version 1.5 — viewing features
 - Provider EPG with current/next programme, date browsing and archive availability. Xtream uses `get_short_epg`/`get_simple_data_table`; Stalker uses `itv/get_short_epg` and `epg/get_simple_data_table`.
@@ -51,3 +51,10 @@ Mock-provider tests cover guide parsing, base64/timezones, archive eligibility, 
 The app now checks for a newer stable release whenever it opens or returns from the background, regardless of a legacy disabled automatic-update preference. No 24-hour cooldown remains. The check runs on a worker; no-update and offline failures stay silent. A newer release shows a Download/Later prompt. A result received while hidden or in PiP is retained and offered when the main app is visible again. Duplicate prompts and prompts during an active update download are suppressed. Empty legacy repository settings fall back to the public Sakan IPTV repository. Download and Android installation still require the user's action.
 
 Devices with older installed builds retain their old check schedule until they install 1.7. They can obtain 1.7 immediately through Settings > App updates > Check now or the signed release APK. JVM tests exercise background-result retention, foreground revisit reminders, duplicate suppression, active downloads, repository reset and already-installed versions. Physical-device lifecycle and installer interaction still require device testing.
+
+## Version 1.8 — minimal interface and direct channel switching
+- Home contains exactly three text-only sections: Live TV, Series, Movies (Arabic: مباشر، مسلسلات، أفلام). It uses static CSS gradients, with larger headings and a visible keyboard/remote focus outline. English remains the default; Arabic keeps the sidebar on the right.
+- Removed the promotional hero, dashboard shelves, fake progress decorations, posters/logos, blur effects and their unused UI code. Deleted the bundled stadium artwork. No provider artwork is requested; CSP and native WebView interception block image/external subresource requests. Required Android launcher/banner identity assets are retained.
+- Each library loads when opened, instead of fetching three catalogues at startup. Favorites fetch the needed libraries on demand; history and resume stay accessible from Recent. Provider text, real resume progress, details, parental controls and update checks remain available.
+- The live player now has Previous / Channels / Next buttons. CHANNEL_UP/DOWN and MEDIA_NEXT/PREVIOUS work directly; DPAD up/down changes channels when video has focus and player controls are hidden. With controls visible, arrows retain their normal focus behavior. Hidden/locked channels are skipped and both ends wrap. Live channels can load on demand after starting from history, so switching does not require first returning to the catalogue.
+- Validation: JVM navigation tests cover wrapping, unavailable current IDs and empty/single-item lists; DOM checks cover the three-section home in both languages, per-section loading, escaped text and image-free cards/details. Build and mock tests do not establish physical TV remote, playback or visual device behavior.

@@ -37,7 +37,7 @@
   "جارٍ تحميل المكتبة…": "Loading library…",
   "لا يوجد محتوى متاح في هذا القسم": "No content available in this section",
   "إعادة المحاولة": "Try again",
-  "مباشر": "Live",
+  "مباشر": "Live TV",
   "إزالة من المفضلة": "Remove from favorites",
   "إضافة إلى المفضلة": "Add to favorites",
   "ابحث بالاسم...": "Search by name...",
@@ -208,5 +208,7 @@
   "ثبات · تخزين وانتظار أطول": "Stable · longer buffer and wait",
   "يُطبق على البث التالي. التخزين الأكبر قد يزيد تأخير البث ولا يعالج نقص سرعة الإنترنت.": "Applies to the next stream. A larger buffer may increase live delay and cannot fix insufficient bandwidth.",
   "ترتيب القنوات والباقات": "Organize channels and categories",
-  "يتم فحص التحديثات تلقائيًا في الخلفية كل مرة تفتح فيها التطبيق، ويظهر تنبيه عند توفر إصدار أحدث.": "Updates are checked in the background every time you open the app. A prompt appears when a newer version is available."
+  "يتم فحص التحديثات تلقائيًا في الخلفية كل مرة تفتح فيها التطبيق، ويظهر تنبيه عند توفر إصدار أحدث.": "Updates are checked in the background every time you open the app. A prompt appears when a newer version is available.",
+  "مسلسلات": "Series",
+  "أفلام": "Movies"
 }

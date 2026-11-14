@@ -1,8 +1,6 @@
 'use strict';
 (function(){
 const dictionary={
-"يتم فحص التحديثات تلقائيًا في الخلفية كل مرة تفتح فيها التطبيق، ويظهر تنبيه عند توفر إصدار أحدث.":"Updates are checked in the background every time you open the app. A prompt appears when a newer version is available.",
-"التخزين المؤقت":"Buffering","سريع · انتظار أقل":"Fast \u00b7 shorter wait","متوازن · موصى به":"Balanced \u00b7 recommended","ثبات · تخزين وانتظار أطول":"Stable \u00b7 longer buffer and wait","يُطبق على البث التالي. التخزين الأكبر قد يزيد تأخير البث ولا يعالج نقص سرعة الإنترنت.":"Applies to the next stream. A larger buffer may increase live delay and cannot fix insufficient bandwidth.","ترتيب القنوات والباقات":"Organize channels and categories",
   "الرئيسية": "Home",
   "البث المباشر": "Live TV",
   "الأفلام": "Movies",
@@ -41,7 +39,7 @@ const dictionary={
   "جارٍ تحميل المكتبة…": "Loading library…",
   "لا يوجد محتوى متاح في هذا القسم": "No content available in this section",
   "إعادة المحاولة": "Try again",
-  "مباشر": "Live",
+  "مباشر": "Live TV",
   "إزالة من المفضلة": "Remove from favorites",
   "إضافة إلى المفضلة": "Add to favorites",
   "ابحث بالاسم...": "Search by name...",
@@ -205,14 +203,23 @@ const dictionary={
   "الرقابة الأبوية": "Parental controls",
   "اختبار الاتصال": "Connection test",
   "قفل الأقسام الآن": "Lock protected sections now",
-  "هذا القسم محمي برقم سري. افتحه من القائمة الرئيسية.": "This section is PIN protected. Unlock it from the navigation menu."
+  "هذا القسم محمي برقم سري. افتحه من القائمة الرئيسية.": "This section is PIN protected. Unlock it from the navigation menu.",
+  "التخزين المؤقت": "Buffering",
+  "سريع · انتظار أقل": "Fast · shorter wait",
+  "متوازن · موصى به": "Balanced · recommended",
+  "ثبات · تخزين وانتظار أطول": "Stable · longer buffer and wait",
+  "يُطبق على البث التالي. التخزين الأكبر قد يزيد تأخير البث ولا يعالج نقص سرعة الإنترنت.": "Applies to the next stream. A larger buffer may increase live delay and cannot fix insufficient bandwidth.",
+  "ترتيب القنوات والباقات": "Organize channels and categories",
+  "يتم فحص التحديثات تلقائيًا في الخلفية كل مرة تفتح فيها التطبيق، ويظهر تنبيه عند توفر إصدار أحدث.": "Updates are checked in the background every time you open the app. A prompt appears when a newer version is available.",
+  "مسلسلات": "Series",
+  "أفلام": "Movies"
 };
 const entries=Object.entries(dictionary).sort((a,b)=>b[0].length-a[0].length);
 const reverse=Object.entries(dictionary).sort((a,b)=>b[1].length-a[1].length);
 let language='en';
 const original=new WeakMap(),attributes=new WeakMap();
 function translate(text){let output=text;if(language==='en'){for(const [ar,en]of entries)output=output.split(ar).join(en)}else if(!/[\u0600-\u06ff]/.test(output)){for(const [ar,en]of reverse)output=output.split(en).join(ar)}return output;}
-function excluded(node){const e=node.nodeType===1?node:node.parentElement;return !e||!!e.closest('script,style,[data-provider],.channel-name,.caption,.letter-art')}
+function excluded(node){const e=node.nodeType===1?node:node.parentElement;return !e||!!e.closest('script,style,[data-provider]')}
 function updateText(node){if(excluded(node))return;const record=original.get(node);const source=record&&node.nodeValue===record.last?record.source:node.nodeValue;const value=translate(source);original.set(node,{source,last:value});if(node.nodeValue!==value)node.nodeValue=value;}
 function updateAttributes(e){if(e.nodeType!==1||e.matches('[data-open],[data-provider]'))return;let records=attributes.get(e)||{};for(const attr of ['placeholder','aria-label','title']){if(!e.hasAttribute(attr))continue;const current=e.getAttribute(attr),record=records[attr];const source=record&&current===record.last?record.source:current;const value=translate(source);records[attr]={source,last:value};if(current!==value)e.setAttribute(attr,value)}attributes.set(e,records);}
 function apply(root=document.body){if(!root)return;if(root.nodeType===3){updateText(root);return}updateAttributes(root);const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let n;while(n=walker.nextNode())updateText(n);root.querySelectorAll&&root.querySelectorAll('[placeholder],[aria-label],[title]').forEach(updateAttributes);}
