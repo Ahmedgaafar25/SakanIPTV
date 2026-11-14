@@ -69,3 +69,6 @@ Devices with older installed builds retain their old check schedule until they i
 
 ## Version 1.9.1 — home cleanup
 Removed Recent channels from Home. Recent viewing remains available in the sidebar and the Live TV Recent channels filter. Home favorites, clock/date, subscription expiry and section refresh controls remain available.
+
+## Version 1.9.2 — clean home with outline symbols
+Removed Favorite channels from Home. Favorites remain accessible through the sidebar and the Live TV Favorite channels filter. The three home sections now have simple inline SVG outline symbols for Live TV, Movies and Series, with no new image files or image downloads. Clock/date, expiry and section refresh controls are retained.
