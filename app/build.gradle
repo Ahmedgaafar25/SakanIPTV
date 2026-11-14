@@ -1,0 +1,17 @@
+plugins { id 'com.android.application' }
+android {
+ namespace 'com.sakan.iptv'
+ compileSdk 35
+ defaultConfig { applicationId 'com.sakan.iptv'; minSdk 23; targetSdk 34; versionCode 5; versionName '1.4' }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+ buildTypes { release { minifyEnabled false } }
+}
+dependencies {
+ implementation 'androidx.core:core:1.13.1'
+ implementation 'androidx.media3:media3-exoplayer:1.5.1'
+ implementation 'androidx.media3:media3-exoplayer-hls:1.5.1'
+ implementation 'androidx.media3:media3-exoplayer-dash:1.5.1'
+ implementation 'androidx.media3:media3-ui:1.5.1'
+ testImplementation 'junit:junit:4.13.2'
+ testImplementation 'org.json:json:20240303'
+}

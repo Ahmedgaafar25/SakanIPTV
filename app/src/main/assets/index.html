@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' https: http: data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Sakan IPTV</title><link rel="stylesheet" href="app.css"></head>
+<body>
+<div class="app">
+ <aside class="sidebar" dir="ltr">
+  <div class="connection"><span id="clock">--:--</span><span data-icon="wifi"></span><span class="bars">▂▄▆</span><span id="connectionLabel">غير متصل</span></div>
+  <nav aria-label="القائمة الرئيسية">
+   <button class="nav active" data-page="home"><span data-icon="home"></span><span>الرئيسية</span></button>
+   <button class="nav" data-page="live"><span data-icon="tv"></span><span>البث المباشر</span><i class="red-dot"></i></button>
+   <button class="nav" data-page="vod"><span data-icon="film"></span><span>الأفلام</span></button>
+   <button class="nav" data-page="series"><span data-icon="series"></span><span>المسلسلات</span></button>
+   <button class="nav" data-page="favorites"><span data-icon="star"></span><span>المفضلة</span></button>
+  </nav>
+  <div class="sidebar-bottom"><button class="nav" id="accountsButton"><span data-icon="user"></span><span>حساباتي</span></button><button class="nav" id="settingsButton"><span data-icon="settings"></span><span>الإعدادات</span></button><div class="version">SAKAN IPTV <span>1.4</span></div></div>
+ </aside>
+ <main id="main">
+  <header class="topbar">
+   <button class="brand" id="brandButton" aria-label="الصفحة الرئيسية"><span class="brand-mark"><span data-icon="tv"></span><b>IPTV</b></span><span class="brand-copy">SAKAN<small>Player</small></span></button>
+   <div class="searchbox"><span data-icon="search"></span><input id="search" type="search" placeholder="ابحث عن قناة أو فيلم..." aria-label="البحث"></div>
+   <button class="welcome" id="welcomeButton"><span class="avatar" data-icon="user"></span><span>مرحبًا بك<small id="profileName">عالمك.. على شاشتك</small></span></button>
+  </header>
+  <div id="content" class="content" tabindex="-1"></div>
+  <footer>تنقّل بالريموت أو اللمس <span>•</span> اضغط مطوّلًا لإضافة المحتوى إلى المفضلة</footer>
+ </main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="loader" class="loading hidden"><span class="spinner"></span><span id="loadingText">جارٍ الاتصال…</span></div>
+<div id="modal" class="modal hidden" role="dialog" aria-modal="true"><div class="modal-card"><button class="close" id="closeModal" aria-label="إغلاق">×</button><div id="modalBody"></div></div></div>
+<script src="i18n.js"></script><script src="app.js"></script></body></html>

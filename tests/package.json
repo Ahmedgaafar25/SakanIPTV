@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "cd .. && node tests/ui-dom-check.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "26.0.0"
+  }
+}

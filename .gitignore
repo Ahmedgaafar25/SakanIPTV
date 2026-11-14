@@ -1,0 +1,14 @@
+.gradle/
+**/build/
+local.properties
+signing/
+*.p12
+*.jks
+*.keystore
+*password*
+.env
+.env.*
+*.apk
+*.apk.idsig
+VALIDATION.json
+node_modules/

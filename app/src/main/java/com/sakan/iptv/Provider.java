@@ -1,0 +1,113 @@
+package com.sakan.iptv;
+
+import org.json.*;
+import java.net.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+public final class Provider {
+ public static class Item {
+  public String id,name,category,cmd,ext,cover="",rating="",plot="",direct=""; public boolean folder;
+  JSONObject json(String kind,boolean favorite)throws Exception{return new JSONObject().put("id",id).put("uid",(folder?"folder:":"item:")+id).put("name",name).put("category",category).put("cover",cover).put("rating",rating).put("plot",plot).put("folder",folder).put("kind",kind).put("favorite",favorite);}
+  Item(String i,String n,String c,String u,String e,boolean f){id=i;name=n;category=c;cmd=u;ext=e;folder=f;}
+ }
+ public final JSONObject profile; public final boolean macMode; public final String base;
+ private String endpoint="",token="",stage=""; private final Set<String> allowedFormats=new HashSet<>();
+ public static final String UA="Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG250 stbapp ver: 4 rev: 2721 Safari/533.3";
+ public Provider(JSONObject p) throws Exception {profile=p; macMode=p.optString("mode").equals("MAC"); base=normalize(p.getString("url"));}
+ static final class HttpFailure extends IOException {
+  final int status;final String stage;
+  HttpFailure(int value,String operation){super(ConnectionDiagnostics.http(value)+" · HTTP "+value+" · "+operation);status=value;stage=operation;}
+ }
+ static List<String> portalEndpoints(String base)throws Exception {
+  LinkedHashSet<String> paths=new LinkedHashSet<>();String r=base;
+  if(r.endsWith(".php")){
+   paths.add(r);
+   if(r.endsWith("/server/load.php"))r=r.substring(0,r.length()-"/server/load.php".length());
+   else if(r.endsWith("/portal.php"))r=r.substring(0,r.length()-"/portal.php".length());
+   else return new ArrayList<>(paths);
+  }
+  r=r.replaceAll("/c(?:/index\\.html?)?$","");
+  paths.add(r+"/server/load.php");paths.add(r+"/portal.php");
+  if(new URI(r).getPath().isEmpty()){paths.add(r+"/stalker_portal/server/load.php");paths.add(r+"/stalker_portal/portal.php");}
+  return new ArrayList<>(paths);
+ }
+ public static String normalize(String raw) throws Exception {
+  String s=raw.trim();if(!s.matches("(?i)^https?://.*"))s="http://"+s;
+  URI u=new URI(s); if(u.getHost()==null || u.getUserInfo()!=null || u.getQuery()!=null || u.getFragment()!=null)throw new Exception("أدخل رابط سيرفر صحيح بدون بيانات دخول أو استعلام");
+  if(!u.getScheme().equalsIgnoreCase("http")&&!u.getScheme().equalsIgnoreCase("https"))throw new Exception("رابط غير مدعوم");
+  return s.replaceAll("/+$","");
+ }
+ static String enc(String s){try{return URLEncoder.encode(s,"UTF-8");}catch(Exception e){return "";}}
+ String root(){return base.replaceAll("/(player_api\\.php|get\\.php)$","");}
+ String xc(String action,String extra){return root()+"/player_api.php?username="+enc(profile.optString("user"))+"&password="+enc(profile.optString("pass"))+(action.isEmpty()?"":"&action="+action)+extra;}
+ Map<String,String> headers(){Map<String,String> h=new HashMap<>();h.put("User-Agent",macMode?UA:profile.optString("agent","VLC/3.0.21 LibVLC/3.0.21"));if(macMode){h.put("Cookie","mac="+enc(profile.optString("mac").toUpperCase(Locale.ROOT))+"; stb_lang=en; timezone=Asia%2FDubai");h.put("X-User-Agent","Model: MAG250; Link: Ethernet");if(!token.isEmpty())h.put("Authorization","Bearer "+token);h.put("Referer",endpoint.replaceAll("/(server/load|portal)\\.php$","")+"/c/");}return h;}
+ Object request(String url) throws Exception {
+  URL current=new URL(url); Map<String,String> h=headers();
+  for(int redirects=0;redirects<6;redirects++) {
+   HttpURLConnection c=(HttpURLConnection)current.openConnection();c.setConnectTimeout(12000);c.setReadTimeout(20000);c.setInstanceFollowRedirects(false);c.setRequestProperty("Accept","application/json");
+   for(Map.Entry<String,String> e:h.entrySet())c.setRequestProperty(e.getKey(),e.getValue());
+   try {
+    int status=c.getResponseCode();
+    if(status>=300&&status<400){String location=c.getHeaderField("Location");if(location==null)throw new Exception("تحويل غير صالح"); URL next=new URL(current,location); if(!Arrays.asList("http","https").contains(next.getProtocol()))throw new Exception("تحويل غير مدعوم"); if(current.getProtocol().equals("https")&&next.getProtocol().equals("http"))throw new Exception("السيرفر يحاول تحويل اتصال آمن إلى غير آمن"); if(!current.getAuthority().equalsIgnoreCase(next.getAuthority())){h.remove("Authorization");h.remove("Cookie");} current=next;continue;}
+    if(status!=200)throw new HttpFailure(status,macMode?"MAC / "+stage:"Xtream API");
+    try(InputStream in=c.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()) {byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1){if(Thread.currentThread().isInterrupted())throw new InterruptedException();out.write(b,0,n);if(out.size()>32*1024*1024)throw new Exception("قائمة السيرفر أكبر من الحد المدعوم");}return new JSONTokener(out.toString("UTF-8").replace("\uFEFF","")).nextValue();}
+   }finally{c.disconnect();}
+  }throw new Exception("تحويلات كثيرة من السيرفر");
+ }
+ Object portal(String type,String action,String extra) throws Exception {stage=action;Object o=request(endpoint+"?type="+type+"&action="+action+"&JsHttpRequest=1-xml"+extra);if(!(o instanceof JSONObject))throw new Exception("رد البوابة غير صالح");return ((JSONObject)o).opt("js");}
+ public void login() throws Exception {
+  if(!macMode){Object o=request(xc("",""));if(!(o instanceof JSONObject))throw new Exception("السيرفر لم يرجع بيانات Xtream صالحة. راجع رابط السيرفر والمنفذ.");JSONObject user=((JSONObject)o).optJSONObject("user_info");if(user==null||user.optInt("auth",0)!=1)throw new Exception("اسم المستخدم أو كلمة المرور غير صحيحة");JSONArray formats=user.optJSONArray("allowed_output_formats");if(formats!=null)for(int i=0;i<formats.length();i++)allowedFormats.add(formats.optString(i));String status=user.optString("status","Active");if(!status.equalsIgnoreCase("Active"))throw new Exception("حالة الاشتراك: "+status);return;}
+  if(!profile.optString("mac").matches("(?i)[0-9a-f]{2}(:[0-9a-f]{2}){5}"))throw new Exception("عنوان MAC غير صحيح");
+  List<String> paths=portalEndpoints(base);
+  Exception last=null;
+  for(String p:paths){endpoint=p;token="";try{Object o=portal("stb","handshake","&token=");token=o instanceof JSONObject?((JSONObject)o).optString("token"):"";if(token.isEmpty())throw new Exception("البوابة لم ترجع رمز دخول");break;}catch(Exception e){last=e;}}
+  if(token.isEmpty())throw new Exception("تعذر تسجيل MAC. راجع رابط البوابة وتفعيل اشتراكك. "+(last==null?"":last.getMessage()));
+  Object info=portal("stb","get_profile","&hd=1&stb_type=MAG250&client_type=STB&image_version=218&video_out=hdmi&auth_second_step=1&sn="+enc(profile.optString("serial"))+"&device_id="+enc(profile.optString("device"))+"&device_id2="+enc(profile.optString("device")));
+  if(info instanceof JSONObject && ((JSONObject)info).optInt("blocked",0)==1)throw new Exception("هذا الاشتراك موقوف لدى المزود");
+ }
+ public LinkedHashMap<String,String> categories(String kind) throws Exception {
+  LinkedHashMap<String,String> result=new LinkedHashMap<>();result.put("*","كل التصنيفات");
+  Object o=macMode?portal(kind.equals("live")?"itv":"vod",kind.equals("live")?"get_genres":"get_categories",""):request(xc("get_"+kind+"_categories",""));
+  if(o instanceof JSONArray){JSONArray arr=(JSONArray)o;for(int i=0;i<arr.length();i++){JSONObject j=arr.optJSONObject(i);if(j!=null)result.put(j.optString(macMode?"id":"category_id"),j.optString(macMode?"title":"category_name"));}}
+  return result;
+ }
+ public List<Item> items(String kind,String category) throws Exception {
+  List<Item> list=new ArrayList<>();
+  if(!macMode){String action=kind.equals("series")?"get_series":"get_"+kind+"_streams";Object o=request(xc(action,category.equals("*")?"":"&category_id="+enc(category)));if(!(o instanceof JSONArray))throw new Exception("لا توجد قائمة صالحة من السيرفر");JSONArray arr=(JSONArray)o;
+   for(int i=0;i<arr.length();i++){JSONObject j=arr.getJSONObject(i);Item item=new Item(j.optString(kind.equals("series")?"series_id":"stream_id"),j.optString("name"),j.optString("category_id"),"",j.optString("container_extension",kind.equals("live")?"ts":"mp4"),kind.equals("series"));item.cover=j.optString(kind.equals("series")?"cover":"stream_icon","");item.rating=j.optString("rating",j.optString("rating_5based",""));item.plot=j.optString("plot","");item.direct=j.optString("direct_source","");list.add(item);}return list;
+  }
+  if(kind.equals("live")){Object o=portal("itv","get_all_channels","");JSONArray arr=o instanceof JSONObject?((JSONObject)o).optJSONArray("data"):null;if(arr==null&&o instanceof JSONArray)arr=(JSONArray)o;if(arr==null)throw new Exception("البوابة لم ترجع قنوات");for(int i=0;i<arr.length();i++){JSONObject j=arr.getJSONObject(i);String cat=j.optString("tv_genre_id");if(category.equals("*")||category.equals(cat)){Item item=new Item(j.optString("id"),j.optString("name"),cat,j.optString("cmd"),"",false);item.cover=j.optString("logo","");list.add(item);}}return list;}
+  int page=1,total=1; Set<String> seen=new HashSet<>();do {Object o=portal("vod","get_ordered_list","&category="+enc(category.equals("*")?"*":category)+"&p="+page+"&sortby=added");if(!(o instanceof JSONObject))break;JSONObject data=(JSONObject)o;JSONArray arr=data.optJSONArray("data");if(arr==null||arr.length()==0)break;int before=list.size();for(int i=0;i<arr.length();i++){JSONObject j=arr.getJSONObject(i);String id=j.optString("id");if(seen.add(id)){Item item=new Item(id,j.optString("name"),category,j.optString("cmd"),"",false);item.cover=j.optString("screenshot_uri",j.optString("cover", ""));item.plot=j.optString("description","");list.add(item);}}if(list.size()==before)break;total=(int)Math.ceil(data.optDouble("total_items",arr.length())/Math.max(1,data.optDouble("max_page_items",arr.length())));page++;if(page>500)throw new Exception("اختر تصنيف أصغر لعرض مكتبة الأفلام");}while(page<=total);return list;
+ }
+ public List<Item> episodes(Item series) throws Exception {
+  JSONObject o=(JSONObject)request(xc("get_series_info","&series_id="+enc(series.id)));JSONObject eps=o.optJSONObject("episodes");List<Item> list=new ArrayList<>();if(eps==null)return list;List<String> seasons=new ArrayList<>();Iterator<String> it=eps.keys();while(it.hasNext())seasons.add(it.next());Collections.sort(seasons,(a,b)->{try{return Integer.compare(Integer.parseInt(a),Integer.parseInt(b));}catch(Exception e){return a.compareTo(b);}});
+  for(String s:seasons){JSONArray arr=eps.optJSONArray(s);if(arr==null)continue;for(int i=0;i<arr.length();i++){JSONObject j=arr.getJSONObject(i);list.add(new Item(j.optString("id"),"S"+s+" · "+j.optString("title","حلقة "+(i+1)),s,"",j.optString("container_extension","mp4"),false));}}return list;
+ }
+ public String stream(Item item,String kind) throws Exception {
+  if(!macMode)return root()+"/"+(kind.equals("vod")?"movie":kind)+"/"+enc(profile.optString("user")).replace("+","%20")+"/"+enc(profile.optString("pass")).replace("+","%20")+"/"+enc(item.id)+"."+enc(item.ext);
+  Object o=portal(kind.equals("live")?"itv":"vod","create_link","&cmd="+enc(item.cmd)+"&series=0&forced_storage=0&disable_ad=0&download=0");String cmd=o instanceof JSONObject?((JSONObject)o).optString("cmd"):"";String url=extractUrl(cmd);if(!url.startsWith("http://")&&!url.startsWith("https://"))throw new Exception("البوابة لم ترجع رابط تشغيل HTTP صالح");return url;
+ }
+ public static String extractUrl(String cmd) throws Exception {
+  java.util.regex.Matcher m=java.util.regex.Pattern.compile("https?://[^\\s\"']+",java.util.regex.Pattern.CASE_INSENSITIVE).matcher(cmd);
+  if(!m.find())throw new Exception("لم ترجع البوابة رابط HTTP صالحًا");return m.group().replace("&amp;","&");
+ }
+ public List<String> streams(Item item,String kind,String preference) throws Exception {
+  LinkedHashSet<String> urls=new LinkedHashSet<>();
+  if(macMode){urls.add(stream(item,kind));return new ArrayList<>(urls);}
+  boolean directValid=item.direct.startsWith("https://")||item.direct.startsWith("http://");
+  if(directValid&&(preference.equals("auto")||!kind.equals("live")))urls.add(item.direct);
+  String original=stream(item,kind);
+  if(kind.equals("live")){
+   String stem=original.substring(0,original.lastIndexOf('.'));
+   if(preference.equals("ts")){urls.add(stem+".ts");urls.add(stem+".m3u8");}
+   else if(preference.equals("hls")||allowedFormats.isEmpty()||allowedFormats.contains("m3u8")){urls.add(stem+".m3u8");urls.add(stem+".ts");}
+   else{urls.add(stem+".ts");urls.add(stem+".m3u8");}
+  }else urls.add(original);
+  if(directValid)urls.add(item.direct);
+  return new ArrayList<>(urls);
+ }
+ public static String mime(String url){String s=url.toLowerCase(Locale.ROOT);if(s.contains(".m3u8")||s.matches(".*[?&](output|extension)=m3u8.*"))return "application/x-mpegURL";if(s.contains(".mpd"))return "application/dash+xml";return null;}
+ public Map<String,String> playbackHeaders(String url){Map<String,String> h=new HashMap<>();h.put("User-Agent",macMode?UA:profile.optString("agent","VLC/3.0.21 LibVLC/3.0.21"));try{if(macMode&&new URI(url).getAuthority().equalsIgnoreCase(new URI(endpoint).getAuthority()))h.putAll(headers());}catch(Exception ignored){}return h;}
+}
