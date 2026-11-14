@@ -14,19 +14,20 @@ import java.net.*;
 import java.security.MessageDigest;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.BooleanSupplier;
+
 
 /** Update downloads are verified before offering Android's normal installer. */
 final class AppUpdates {
- private final Activity activity;private final BooleanSupplier foreground;private final Handler main=new Handler(Looper.getMainLooper());private final ExecutorService worker=Executors.newSingleThreadExecutor();
+ interface Visibility {boolean visible();}
+ private final Activity activity;private final Visibility foreground;private final Handler main=new Handler(Looper.getMainLooper());private final ExecutorService worker=Executors.newSingleThreadExecutor();
  private final DownloadManager downloads;private final android.content.SharedPreferences prefs;private volatile boolean checking=false,verifying=false;private boolean closed=false;
  private final BroadcastReceiver receiver=new BroadcastReceiver(){@Override public void onReceive(Context c,Intent i){if(DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(i.getAction())&&i.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID,-2)==prefs.getLong("downloadId",-1))resume();}};
- AppUpdates(Activity owner,BooleanSupplier visible){activity=owner;foreground=visible;prefs=owner.getSharedPreferences("updater",0);downloads=(DownloadManager)owner.getSystemService(Context.DOWNLOAD_SERVICE);IntentFilter f=new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);if(Build.VERSION.SDK_INT>=33)owner.registerReceiver(receiver,f,Context.RECEIVER_EXPORTED);else owner.registerReceiver(receiver,f);}
+ AppUpdates(Activity owner,Visibility visible){activity=owner;foreground=visible;prefs=owner.getSharedPreferences("updater",0);downloads=(DownloadManager)owner.getSystemService(Context.DOWNLOAD_SERVICE);IntentFilter f=new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);if(Build.VERSION.SDK_INT>=33)owner.registerReceiver(receiver,f,Context.RECEIVER_EXPORTED);else owner.registerReceiver(receiver,f);}
  private String t(String en,String ar){return "ar".equals(activity.getSharedPreferences("options",0).getString("language","en"))?ar:en;}
  String repository(){return prefs.getString("repository","Ahmedgaafar25/SakanIPTV");}
  boolean automatic(){return prefs.getBoolean("automatic",true);}
  void configure(String repo,boolean auto){String value=repo.trim().isEmpty()?"":ReleaseInfo.repository(repo);prefs.edit().putString("repository",value).putBoolean("automatic",auto).remove("lastCheck").apply();}
- private void ui(Runnable action){main.post(()->{if(!closed&&!activity.isFinishing()&&!activity.isDestroyed()&&foreground.getAsBoolean())action.run();});}
+ private void ui(Runnable action){main.post(()->{if(!closed&&!activity.isFinishing()&&!activity.isDestroyed()&&foreground.visible())action.run();});}
  private void message(String value){ui(()->Toast.makeText(activity,value,Toast.LENGTH_LONG).show());}
  private JSONObject fetch(String link)throws Exception{
   URL next=new URL(link);for(int redirects=0;redirects<6;redirects++){if(!next.getProtocol().equals("https"))throw new IOException("An update response tried to leave HTTPS");HttpURLConnection c=(HttpURLConnection)next.openConnection();c.setConnectTimeout(12000);c.setReadTimeout(15000);c.setInstanceFollowRedirects(false);c.setRequestProperty("Accept","application/vnd.github+json");c.setRequestProperty("User-Agent","SakanIPTV-Updater");try{int status=c.getResponseCode();if(status>=300&&status<400){String location=c.getHeaderField("Location");if(location==null)throw new IOException("Invalid update redirect");next=new URL(next,location);continue;}if(status!=200)throw new IOException("GitHub HTTP "+status);try(InputStream in=c.getInputStream();ByteArrayOutputStream out=new ByteArrayOutputStream()){byte[] b=new byte[8192];int n;while((n=in.read(b))!=-1){out.write(b,0,n);if(out.size()>2*1024*1024)throw new IOException("Update metadata is too large");}return new JSONObject(out.toString("UTF-8"));}}finally{c.disconnect();}}throw new IOException("Too many update redirects");
