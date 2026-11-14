@@ -201,5 +201,11 @@
   "الرقابة الأبوية": "Parental controls",
   "اختبار الاتصال": "Connection test",
   "قفل الأقسام الآن": "Lock protected sections now",
-  "هذا القسم محمي برقم سري. افتحه من القائمة الرئيسية.": "This section is PIN protected. Unlock it from the navigation menu."
+  "هذا القسم محمي برقم سري. افتحه من القائمة الرئيسية.": "This section is PIN protected. Unlock it from the navigation menu.",
+  "التخزين المؤقت": "Buffering",
+  "سريع · انتظار أقل": "Fast · shorter wait",
+  "متوازن · موصى به": "Balanced · recommended",
+  "ثبات · تخزين وانتظار أطول": "Stable · longer buffer and wait",
+  "يُطبق على البث التالي. التخزين الأكبر قد يزيد تأخير البث ولا يعالج نقص سرعة الإنترنت.": "Applies to the next stream. A larger buffer may increase live delay and cannot fix insufficient bandwidth.",
+  "ترتيب القنوات والباقات": "Organize channels and categories"
 }
