@@ -32,3 +32,28 @@
 .text-card:focus-within{outline:3px solid #fff;outline-offset:2px;border-color:#fff!important;box-shadow:inset 0 0 0 2px #fff,0 0 0 5px #50c8ff55;background:#244462!important;position:relative;z-index:1}.poster .open-card:focus{outline:3px solid #fff;outline-offset:-3px;background:#244462}.poster .card-tools button:focus{outline:2px solid #fff;outline-offset:-2px;background:#285376}.section-search{display:flex;width:100%;max-width:none;margin:.3rem 0 .8rem;min-height:2.8rem}.section-search input{font-size:.9rem}.brand{cursor:default;user-select:none}.poster-grid{grid-template-columns:repeat(auto-fill,minmax(7rem,1fr));gap:.75rem}.poster-grid .poster-art{aspect-ratio:auto;height:clamp(5rem,calc((100vh - 21rem)/2 - 6.5rem),14rem)}.poster-grid .poster-image{object-fit:contain}.poster-grid .poster .open-card{min-height:0}.poster-grid .poster .content-name{font-size:.8rem;line-height:1.4;min-height:2.8rem;padding:.35rem .45rem}.poster-grid .card-tools{padding:.05rem .25rem}.poster-grid .card-tools button{min-height:2rem;font-size:.8rem}.poster-grid .card-tools .card-star{font-size:1.2rem}.poster-grid .watch-status{padding:.1rem .45rem .3rem}.poster-grid .watch-status small{font-size:.65rem;min-height:1rem}.episode-card .poster-art{height:clamp(5rem,15vh,10rem)}.live-shell{height:calc(100vh - 15rem)}
 @media(max-width:700px){.poster-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem}.poster-grid .poster-art{height:clamp(5rem,22vh,11rem)}.poster-grid .poster .content-name{font-size:.78rem}.poster-grid .card-info{padding:.1rem}.live-shell{height:auto}.section-search{margin:.2rem 0 .7rem}}@media(min-width:701px){.catalog-head{margin-bottom:.6rem}.section-filters{margin-bottom:.4rem}.categories{margin-bottom:.4rem;padding-bottom:.5rem}}
 @media(min-width:701px) and (max-height:600px){.topbar{height:3rem}.content{padding-top:.4rem}.catalog-head{margin:0 0 .3rem}.catalog-head h1{font-size:1.35rem}.section-search{min-height:2.3rem;margin:.1rem 0 .35rem}.section-filters{margin:0;padding:.1rem 0 .25rem}.categories{padding:.1rem 0 .3rem;margin-bottom:.3rem}.chip{font-size:.8rem;padding:.3rem .6rem}.poster-grid .poster .content-name{min-height:2.3rem;font-size:.75rem}.poster-grid .poster-art{height:clamp(3.5rem,calc((100vh - 16.5rem)/2 - 5.5rem),9rem)}.live-shell{height:calc(100vh - 11rem);min-height:0}}
+/* === UX & Ergonomics Polish (Mobile + Android TV) === */
+html,body{-webkit-tap-highlight-color:transparent;text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+.sidebar,.topbar,.nav,.home-tile,.text-card,button{user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.content,.live-shell>*,#modal .modal-card{overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(162,176,197,.35) transparent}
+.content::-webkit-scrollbar,.live-shell>*::-webkit-scrollbar,#modal .modal-card::-webkit-scrollbar{width:6px;height:6px}
+.content::-webkit-scrollbar-thumb,.live-shell>*::-webkit-scrollbar-thumb,#modal .modal-card::-webkit-scrollbar-thumb{background:rgba(162,176,197,.32);border-radius:999px}
+.content::-webkit-scrollbar-track,.live-shell>*::-webkit-scrollbar-track,#modal .modal-card::-webkit-scrollbar-track{background:transparent}
+.nav,.home-tile,.text-card,.topbar button,.sidebar-bottom button{transition:transform .14s ease,background-color .14s ease,border-color .14s ease,box-shadow .14s ease}
+.nav:focus-visible,.home-tile:focus-visible,.text-card:focus-visible,.text-card:focus-within,.topbar button:focus-visible,.sidebar-bottom button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #ffffff;outline-offset:2px;box-shadow:0 0 0 6px rgba(96,165,250,.32)}
+.home-tile:focus-visible,.text-card:focus-within{transform:translateY(-2px)}
+.nav:active,.home-tile:active,.text-card:active,button:active{transform:scale(.98)}
+.sidebar .nav{border-radius:12px}
+.topbar{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#modal{backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#modal .modal-card{box-shadow:0 24px 60px rgba(0,0,0,.55)}
+#toast{box-shadow:0 12px 32px rgba(0,0,0,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.live-shell>*{border-radius:14px}
+@media (max-width:700px){
+  .nav,.topbar button,.sidebar-bottom button,.text-card.channel,button,input,select{min-height:44px}
+  .text-card.channel{padding-top:10px;padding-bottom:10px}
+}
+@media (prefers-reduced-motion:reduce){
+  .nav,.home-tile,.text-card,.topbar button,.sidebar-bottom button{transition:none}
+  .home-tile:focus-visible,.text-card:focus-within,.nav:active,.home-tile:active,.text-card:active,button:active{transform:none}
+}
